@@ -1,0 +1,71 @@
+//
+// Grid
+// ----------------------------------------------
+
+$grid-config: (
+	columns: 12,
+	starting: 1,
+	gutter: 10px
+);
+
+@mixin make-row() {
+	margin:0 (-(map-get($grid-config, gutter) / 2)); 
+}
+
+@mixin make-column($breakpoint-name) {
+	@for $i from map-get($grid-config, starting) through map-get($grid-config, columns) {
+		.col-#{$breakpoint-name}-#{$i} {
+			float:left;
+			width: 100% / (map-get($grid-config, columns) / $i);
+			padding: 0 (map-get($grid-config, gutter) / 2);
+		}
+	}
+}
+
+@mixin make-offset() {
+	@for $i from map-get($grid-config, starting) through map-get($grid-config, columns) {
+		.offset-before-#{$i} {
+			margin-left: 100% / (map-get($grid-config, columns) / $i);
+		}
+
+		.offset-after-#{$i} {
+			margin-right: 100% / (map-get($grid-config, columns) / $i);
+		}
+	}
+}
+
+.row {
+	@include clearfix();
+	@include make-row();
+
+	& + .row {
+		margin-top:10px;
+	}
+
+}
+
+// Breakpoints
+// --------------------------
+
+$breakpoints: (
+	screen-sm-min: 768px,
+	screen-md-min: 992px,
+	screen-lg-min: 1200px
+);
+
+@media (max-width: map-get($breakpoints, screen-sm-min)) {
+	@include make-column(xs);
+	@include make-offset();	
+}
+
+@media (min-width: map-get($breakpoints, screen-sm-min)) {
+	@include make-column(sm);
+}
+
+@media (min-width: map-get($breakpoints, screen-md-min)) {
+	@include make-column(md);	
+}
+
+@media (min-width: map-get($breakpoints, screen-lg-min)) {
+	@include make-column(lg);
+}
