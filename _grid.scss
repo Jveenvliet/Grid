@@ -8,20 +8,34 @@ $grid-config: (
 	gutter: 10px
 );
 
+// create row
 @mixin make-row() {
-	margin:0 (-(map-get($grid-config, gutter) / 2)); 
+	margin:0 auto; 
 }
 
+// create grid columns
 @mixin make-column($breakpoint-name) {
 	@for $i from map-get($grid-config, starting) through map-get($grid-config, columns) {
 		.col-#{$breakpoint-name}-#{$i} {
+			position: relative;
 			float:left;
 			width: 100% / (map-get($grid-config, columns) / $i);
 			padding: 0 (map-get($grid-config, gutter) / 2);
 		}
+		
+		// push column to other position (push means further to the right)
+		.col-#{$breakpoint-name}-push-#{$i} {
+			left: 100% / (map-get($grid-config, columns) / $i);
+		}
+		
+		// pull column to other position (pull means further to the left)
+		.col-#{$breakpoint-name}-pull-#{$i} {
+			right: 100% / (map-get($grid-config, columns) / $i);
+		}
 	}
 }
 
+// create offset classes for helping you organize your grid.
 @mixin make-offset() {
 	@for $i from map-get($grid-config, starting) through map-get($grid-config, columns) {
 		.offset-before-#{$i} {
@@ -34,14 +48,36 @@ $grid-config: (
 	}
 }
 
+
+// clearfix mixin
+@mixin clearfix() {
+	&:before,
+	&:after {
+		display: table;
+		content: "";
+	}
+
+	&:after {
+		clear:both;
+	}
+}
+
 .row {
 	@include clearfix();
 	@include make-row();
 
-	& + .row {
-		margin-top:10px;
+	// row inside a row has a negative gutter
+	> .row {
+		margin:0 (-(map-get($grid-config, gutter) / 2)); 
 	}
-
+	
+	// float last item to right for fixing sub-pixel issues.
+	[class*=col-],
+	[class^=col-] {
+		&:last-child {
+			float:right;
+		}
+	}
 }
 
 // Breakpoints
@@ -53,19 +89,22 @@ $breakpoints: (
 	screen-lg-min: 1200px
 );
 
-@media (max-width: map-get($breakpoints, screen-sm-min)) {
-	@include make-column(xs);
-	@include make-offset();	
-}
 
+// default settings grid
+@include make-column(xs);
+@include make-offset();	
+
+// small screen grid
 @media (min-width: map-get($breakpoints, screen-sm-min)) {
 	@include make-column(sm);
 }
 
+// medium screen grid
 @media (min-width: map-get($breakpoints, screen-md-min)) {
 	@include make-column(md);	
 }
 
+// large screen grid
 @media (min-width: map-get($breakpoints, screen-lg-min)) {
 	@include make-column(lg);
 }
